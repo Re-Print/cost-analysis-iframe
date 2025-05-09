@@ -506,5 +506,36 @@
       }, 500);
     }
   </script>
+  <script>
+  // Set a specific height for the entire document
+  document.body.style.minHeight = "1400px";
+  
+  // Communicate the height to the parent frame (Notion)
+  function updateParentHeight() {
+    const height = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    
+    // Send message to parent frame
+    if (window.parent) {
+      window.parent.postMessage({ height: height + 50 }, '*');
+    }
+  }
+  
+  // Run after everything is loaded
+  window.addEventListener('load', function() {
+    // Initial update
+    updateParentHeight();
+    
+    // Update after a delay to ensure charts are rendered
+    setTimeout(updateParentHeight, 1000);
+  });
+  
+  // Also run after window resize
+  window.addEventListener('resize', updateParentHeight);
+</script>
 </body>
 </html>
