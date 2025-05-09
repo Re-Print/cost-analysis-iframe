@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RePrint Cost Analysis - Total Cost</title>
+  <title>RePrint - Total Cost</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,42 +15,14 @@
     h1 {
       text-align: center;
       color: #37352f;
-      margin-bottom: 20px;
-      font-weight: 600;
-      font-size: 24px;
-    }
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
       margin-bottom: 15px;
-      color: #37352f;
+      font-weight: 600;
+      font-size: 18px;
     }
     .chart-container {
-      padding: 15px;
+      padding: 10px;
       background-color: white;
       border-radius: 3px;
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-      margin-bottom: 15px;
-    }
-    .navigation {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-    }
-    .nav-button {
-      padding: 8px 12px;
-      background-color: rgba(35, 131, 226, 0.14);
-      color: rgb(14, 76, 139);
-      border: none;
-      border-radius: 3px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .nav-button.current {
-      background-color: rgba(35, 131, 226, 0.3);
     }
     .loading-message {
       text-align: center;
@@ -61,13 +33,14 @@
   </style>
 </head>
 <body>
+  <h1>Total Monthly Cost by User Tier</h1>
+  
   <div id="loading" class="loading-message">
     Loading chart...
   </div>
   
   <div id="chart-container" class="chart-container" style="display:none;">
-    <h2>Total Monthly Cost by User Tier</h2>
-    <canvas id="totalCostChart" height="280"></canvas>
+    <canvas id="totalCostChart" height="250"></canvas>
   </div>
 
   <script>
@@ -106,6 +79,7 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
           scales: {
             y: {
               beginAtZero: true,
