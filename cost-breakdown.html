@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RePrint Cost Analysis - Cost Breakdown</title>
+  <title>RePrint - Cost Breakdown</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,42 +15,14 @@
     h1 {
       text-align: center;
       color: #37352f;
-      margin-bottom: 20px;
-      font-weight: 600;
-      font-size: 24px;
-    }
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
       margin-bottom: 15px;
-      color: #37352f;
+      font-weight: 600;
+      font-size: 18px;
     }
     .chart-container {
-      padding: 15px;
+      padding: 10px;
       background-color: white;
       border-radius: 3px;
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-      margin-bottom: 15px;
-    }
-    .navigation {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-    }
-    .nav-button {
-      padding: 8px 12px;
-      background-color: rgba(35, 131, 226, 0.14);
-      color: rgb(14, 76, 139);
-      border: none;
-      border-radius: 3px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .nav-button.current {
-      background-color: rgba(35, 131, 226, 0.3);
     }
     .loading-message {
       text-align: center;
@@ -62,8 +33,8 @@
     .flex-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
-      margin-top: 20px;
+      gap: 15px;
+      margin-top: 15px;
     }
     .chart-area {
       flex: 1 1 45%;
@@ -120,21 +91,13 @@
   </style>
 </head>
 <body>
-  <h1>RePrint AWS Cost Analysis</h1>
-  
-  <div class="navigation">
-    <a href="index.html" class="nav-button">Total Cost</a>
-    <a href="cost-per-user.html" class="nav-button">Cost Per User</a>
-    <a href="cost-breakdown.html" class="nav-button current">Cost Breakdown</a>
-    <a href="service-evolution.html" class="nav-button">Service Evolution</a>
-  </div>
+  <h1>Cost Breakdown by Service</h1>
   
   <div id="loading" class="loading-message">
     Loading chart...
   </div>
   
   <div id="chart-container" class="chart-container" style="display:none;">
-    <h2>Cost Breakdown by Service</h2>
     <div class="tier-selector">
       <button class="tier-button" data-index="0">10 Users</button>
       <button class="tier-button active" data-index="1">1,000 Users</button>
@@ -144,7 +107,7 @@
     
     <div class="flex-container">
       <div class="chart-area">
-        <canvas id="costBreakdownChart" height="250"></canvas>
+        <canvas id="costBreakdownChart" height="220"></canvas>
       </div>
       <div id="costTableContainer" class="table-area">
         <!-- Table will be inserted here -->
@@ -226,104 +189,4 @@
         '#a4de6c', '#d0ed57'
       ];
 
-      // Format currency
-      const formatCurrency = (value) => {
-        return '$' + value.toFixed(2);
-      };
-
-      // Get cost breakdown for pie chart
-      const getCostBreakdown = (index) => {
-        const data = costData[index];
-        return [
-          { name: 'Backend (EB)', value: data.backend },
-          { name: 'API Gateway', value: data.apiGateway },
-          { name: 'DynamoDB', value: data.dynamoDB },
-          { name: 'S3 Storage', value: data.s3 },
-          { name: 'CloudFront', value: data.cloudFront },
-          { name: 'EventBridge', value: data.eventBridge },
-          { name: 'Lambda', value: data.lambda },
-          { name: 'SNS', value: data.sns },
-          { name: 'Load Balancer', value: data.loadBalancer },
-          { name: 'Other', value: data.other }
-        ].filter(item => item.value > 0);
-      };
-      
-      // Hide loading message and show chart
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("chart-container").style.display = "block";
-
-      // Create cost breakdown pie chart and table
-      let costBreakdownChart;
-      let activeTierIndex = 1; // Default to 1,000 users
-
-      const updateCostBreakdown = (index) => {
-        const breakdown = getCostBreakdown(index);
-        
-        // Update pie chart
-        if (costBreakdownChart) {
-          costBreakdownChart.destroy();
-        }
-        
-        const costBreakdownCtx = document.getElementById('costBreakdownChart').getContext('2d');
-        costBreakdownChart = new Chart(costBreakdownCtx, {
-          type: 'pie',
-          data: {
-            labels: breakdown.map(item => item.name),
-            datasets: [{
-              data: breakdown.map(item => item.value),
-              backgroundColor: COLORS.slice(0, breakdown.length),
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const value = context.raw;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = ((value / total) * 100).toFixed(1);
-                    return context.label + ': ' + formatCurrency(value) + ' (' + percentage + '%)';
-                  }
-                }
-              }
-            }
-          }
-        });
-        
-        // Update table
-        const tableContainer = document.getElementById('costTableContainer');
-        let tableHTML = '<table class="cost-table">';
-        tableHTML += '<thead><tr><th>Service</th><th>Monthly Cost</th></tr></thead>';
-        tableHTML += '<tbody>';
-        
-        breakdown.forEach((item, i) => {
-          tableHTML += '<tr>';
-          tableHTML += '<td>' + item.name + '</td>';
-          tableHTML += '<td>' + formatCurrency(item.value) + '</td>';
-          tableHTML += '</tr>';
-        });
-        
-        tableHTML += '<tr><td>Total</td><td>' + formatCurrency(costData[index].totalCost) + '</td></tr>';
-        tableHTML += '</tbody></table>';
-        
-        tableContainer.innerHTML = tableHTML;
-      };
-
-      // Initialize with 1,000 users
-      updateCostBreakdown(activeTierIndex);
-
-      // Handle tier selection
-      document.querySelectorAll('.tier-button').forEach(button => {
-        button.addEventListener('click', () => {
-          document.querySelectorAll('.tier-button').forEach(b => b.classList.remove('active'));
-          button.classList.add('active');
-          activeTierIndex = parseInt(button.dataset.index);
-          updateCostBreakdown(activeTierIndex);
-        });
-      });
-    });
-  </script>
-</body>
-</html>
+      // Form
