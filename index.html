@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RePrint AWS Cost Analysis</title>
+  <title>RePrint Cost Analysis</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -9,117 +9,40 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
       padding: 15px;
-      background-color: #f7f7f7;
-      color: #37352f;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 5px;
-      padding: 20px;
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+      text-align: center;
     }
     h1 {
-      text-align: center;
-      color: #37352f;
-      margin-bottom: 20px;
-      font-weight: 600;
-      font-size: 28px;
-    }
-    p {
-      line-height: 1.5;
       margin-bottom: 20px;
     }
-    .chart-links {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      margin: 25px 0;
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 0 auto;
     }
-    .chart-card {
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .chart-card:hover {
-      transform: translateY(-3px);
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.2) 0px 5px 10px;
-    }
-    .chart-icon {
-      font-size: 36px;
+    li {
       margin-bottom: 10px;
-      color: #3498db;
-    }
-    .chart-title {
-      font-weight: 500;
-      margin-bottom: 10px;
-    }
-    .chart-description {
-      font-size: 13px;
-      color: #666;
     }
     a {
-      color: #2383e2;
+      display: block;
+      padding: 10px;
+      background-color: #f5f5f5;
       text-decoration: none;
+      color: #333;
+      border-radius: 5px;
     }
     a:hover {
-      text-decoration: underline;
-    }
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      font-size: 13px;
-      color: #888;
+      background-color: #e0e0e0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>RePrint AWS Cost Analysis</h1>
-    
-    <p>
-      This interactive dashboard provides cost analysis visualizations for the RePrint application 
-      infrastructure on AWS. Each chart is available as a separate page for easy embedding in documentation.
-    </p>
-    
-    <div class="chart-links">
-      <a href="total-cost.html" class="chart-card">
-        <div class="chart-icon">📊</div>
-        <div class="chart-title">Total Monthly Cost</div>
-        <div class="chart-description">Monthly AWS cost across different user tiers</div>
-      </a>
-      
-      <a href="cost-per-user.html" class="chart-card">
-        <div class="chart-icon">💰</div>
-        <div class="chart-title">Cost Per User</div>
-        <div class="chart-description">Economics of scale as user base grows</div>
-      </a>
-      
-      <a href="cost-breakdown.html" class="chart-card">
-        <div class="chart-icon">🍕</div>
-        <div class="chart-title">Cost Breakdown</div>
-        <div class="chart-description">Service-by-service breakdown by user tier</div>
-      </a>
-      
-      <a href="service-evolution.html" class="chart-card">
-        <div class="chart-icon">📈</div>
-        <div class="chart-title">Service Evolution</div>
-        <div class="chart-description">How service costs scale with user growth</div>
-      </a>
-    </div>
-    
-    <p>
-      These visualizations are based on AWS pricing as of May 2025. For the most current estimates, 
-      please use the <a href="https://calculator.aws" target="_blank">AWS Pricing Calculator</a>.
-    </p>
-    
-    <div class="footer">
-      RePrint AWS Cost Analysis • Created for Notion embedding
-    </div>
-  </div>
+  <h1>RePrint Cost Analysis Charts</h1>
+  <ul>
+    <li><a href="total-cost.html">Total Monthly Cost</a></li>
+    <li><a href="cost-per-user.html">Cost Per User</a></li>
+    <li><a href="cost-breakdown.html">Cost Breakdown by Service</a></li>
+    <li><a href="service-evolution.html">Service Cost Evolution</a></li>
+  </ul>
 </body>
 </html>
