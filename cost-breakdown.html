@@ -189,4 +189,105 @@
         '#a4de6c', '#d0ed57'
       ];
 
-      // Form
+      // Format currency
+      const formatCurrency = (value) => {
+        return '$' + value.toFixed(2);
+      };
+
+      // Get cost breakdown for pie chart
+      const getCostBreakdown = (index) => {
+        const data = costData[index];
+        return [
+          { name: 'Backend (EB)', value: data.backend },
+          { name: 'API Gateway', value: data.apiGateway },
+          { name: 'DynamoDB', value: data.dynamoDB },
+          { name: 'S3 Storage', value: data.s3 },
+          { name: 'CloudFront', value: data.cloudFront },
+          { name: 'EventBridge', value: data.eventBridge },
+          { name: 'Lambda', value: data.lambda },
+          { name: 'SNS', value: data.sns },
+          { name: 'Load Balancer', value: data.loadBalancer },
+          { name: 'Other', value: data.other }
+        ].filter(item => item.value > 0);
+      };
+      
+      // Hide loading message and show chart
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("chart-container").style.display = "block";
+
+      // Create cost breakdown pie chart and table
+      let costBreakdownChart;
+      let activeTierIndex = 1; // Default to 1,000 users
+
+      const updateCostBreakdown = (index) => {
+        const breakdown = getCostBreakdown(index);
+        
+        // Update pie chart
+        if (costBreakdownChart) {
+          costBreakdownChart.destroy();
+        }
+        
+        const costBreakdownCtx = document.getElementById('costBreakdownChart').getContext('2d');
+        costBreakdownChart = new Chart(costBreakdownCtx, {
+          type: 'pie',
+          data: {
+            labels: breakdown.map(item => item.name),
+            datasets: [{
+              data: breakdown.map(item => item.value),
+              backgroundColor: COLORS.slice(0, breakdown.length),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const value = context.raw;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return context.label + ': ' + formatCurrency(value) + ' (' + percentage + '%)';
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Update table
+        const tableContainer = document.getElementById('costTableContainer');
+        let tableHTML = '<table class="cost-table">';
+        tableHTML += '<thead><tr><th>Service</th><th>Monthly Cost</th></tr></thead>';
+        tableHTML += '<tbody>';
+        
+        breakdown.forEach((item, i) => {
+          tableHTML += '<tr>';
+          tableHTML += '<td>' + item.name + '</td>';
+          tableHTML += '<td>' + formatCurrency(item.value) + '</td>';
+          tableHTML += '</tr>';
+        });
+        
+        tableHTML += '<tr><td>Total</td><td>' + formatCurrency(costData[index].totalCost) + '</td></tr>';
+        tableHTML += '</tbody></table>';
+        
+        tableContainer.innerHTML = tableHTML;
+      };
+
+      // Initialize with 1,000 users
+      updateCostBreakdown(activeTierIndex);
+
+      // Handle tier selection
+      document.querySelectorAll('.tier-button').forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.tier-button').forEach(b => b.classList.remove('active'));
+          button.classList.add('active');
+          activeTierIndex = parseInt(button.dataset.index);
+          updateCostBreakdown(activeTierIndex);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
