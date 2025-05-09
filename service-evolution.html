@@ -1,1 +1,212 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RePrint Cost Analysis - Service Evolution</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background-color: transparent;
+    }
+    h1 {
+      text-align: center;
+      color: #37352f;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 24px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: #37352f;
+    }
+    .chart-container {
+      padding: 15px;
+      background-color: white;
+      border-radius: 3px;
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+      margin-bottom: 15px;
+    }
+    .navigation {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .nav-button {
+      padding: 8px 12px;
+      background-color: rgba(35, 131, 226, 0.14);
+      color: rgb(14, 76, 139);
+      border: none;
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-button.current {
+      background-color: rgba(35, 131, 226, 0.3);
+    }
+    .loading-message {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+      color: #666;
+    }
+    .note {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>RePrint AWS Cost Analysis</h1>
+  
+  <div class="navigation">
+    <a href="index.html" class="nav-button">Total Cost</a>
+    <a href="cost-per-user.html" class="nav-button">Cost Per User</a>
+    <a href="cost-breakdown.html" class="nav-button">Cost Breakdown</a>
+    <a href="service-evolution.html" class="nav-button current">Service Evolution</a>
+  </div>
+  
+  <div id="loading" class="loading-message">
+    Loading chart...
+  </div>
+  
+  <div id="chart-container" class="chart-container" style="display:none;">
+    <h2>Service Cost Evolution (Logarithmic Scale)</h2>
+    <canvas id="serviceEvolutionChart" height="280"></canvas>
+    <div class="note">Note: Y-axis is logarithmic to better show the wide range of values</div>
+  </div>
+
+  <script>
+    // Load Chart.js and create the chart
+    window.addEventListener('load', function() {
+      // Data from your cost analysis
+      const costData = [
+        {
+          users: '10 Users',
+          backend: 15.48,
+          apiGateway: 0.30,
+          dynamoDB: 2.84,
+          s3: 0.03,
+          cloudFront: 0.10,
+          sns: 0.06
+        },
+        {
+          users: '1,000 Users',
+          backend: 15.48,
+          apiGateway: 3.00,
+          dynamoDB: 14.19,
+          s3: 0.53,
+          cloudFront: 9.10,
+          sns: 6.05
+        },
+        {
+          users: '100,000 Users',
+          backend: 61.92,
+          apiGateway: 300.00,
+          dynamoDB: 141.90,
+          s3: 50.25,
+          cloudFront: 910.00,
+          sns: 605.30
+        },
+        {
+          users: '1,000,000 Users',
+          backend: 247.68,
+          apiGateway: 3000.00,
+          dynamoDB: 1419.00,
+          s3: 502.50,
+          cloudFront: 3610.00,
+          sns: 6053.00
+        }
+      ];
+
+      // Format currency
+      const formatCurrency = (value) => {
+        return '$' + value.toFixed(2);
+      };
+      
+      // Hide loading message and show chart
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("chart-container").style.display = "block";
+
+      // Create service evolution chart
+      const serviceEvolutionCtx = document.getElementById('serviceEvolutionChart').getContext('2d');
+      new Chart(serviceEvolutionCtx, {
+        type: 'bar',
+        data: {
+          labels: costData.map(d => d.users),
+          datasets: [
+            {
+              label: 'Backend (EB)',
+              data: costData.map(d => d.backend),
+              backgroundColor: 'rgba(35, 131, 226, 0.7)'
+            },
+            {
+              label: 'API Gateway',
+              data: costData.map(d => d.apiGateway),
+              backgroundColor: 'rgba(0, 168, 107, 0.7)'
+            },
+            {
+              label: 'DynamoDB',
+              data: costData.map(d => d.dynamoDB),
+              backgroundColor: 'rgba(255, 177, 25, 0.7)'
+            },
+            {
+              label: 'S3 Storage',
+              data: costData.map(d => d.s3),
+              backgroundColor: 'rgba(155, 89, 182, 0.7)'
+            },
+            {
+              label: 'CloudFront',
+              data: costData.map(d => d.cloudFront),
+              backgroundColor: 'rgba(231, 76, 60, 0.7)'
+            },
+            {
+              label: 'SNS',
+              data: costData.map(d => d.sns),
+              backgroundColor: 'rgba(26, 188, 156, 0.7)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              stacked: false
+            },
+            y: {
+              type: 'logarithmic',
+              min: 0.01,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value;
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatCurrency(context.raw);
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
