@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RePrint Cost Analysis</title>
+  <title>RePrint Cost Analysis - Total Cost</title>
   <meta charset="UTF-8">
-  <meta name="viewport" content="height=1400, width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: transparent;
-    }
-    .container {
-      max-width: 100%;
-      margin: 0 auto;
       padding: 10px;
+      background-color: transparent;
     }
     h1 {
       text-align: center;
@@ -23,76 +19,38 @@
       font-weight: 600;
       font-size: 24px;
     }
-    .chart-container {
-      margin-bottom: 30px;
-      padding: 15px;
-      background-color: white;
-      border-radius: 3px;
-      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-    }
-    .chart-title {
+    h2 {
       font-size: 16px;
       font-weight: 500;
       margin-bottom: 15px;
       color: #37352f;
     }
-    .flex-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 15px;
-    }
-    .cost-breakdown-container {
-      flex: 1 1 45%;
-      min-width: 300px;
-    }
-    .cost-table-container {
-      flex: 1 1 45%;
-      min-width: 300px;
-    }
-    .cost-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .cost-table th, .cost-table td {
-      border: 1px solid rgba(55, 53, 47, 0.16);
-      padding: 8px;
-      text-align: left;
-    }
-    .cost-table th {
-      background-color: rgba(55, 53, 47, 0.08);
-    }
-    .cost-table tr:nth-child(even) {
-      background-color: rgba(55, 53, 47, 0.03);
-    }
-    .cost-table tr:last-child {
-      background-color: rgba(35, 131, 226, 0.07);
-      font-weight: 500;
-    }
-    .tier-selector {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-    .tier-button {
-      padding: 6px 12px;
-      background-color: rgba(55, 53, 47, 0.08);
-      border: none;
+    .chart-container {
+      padding: 15px;
+      background-color: white;
       border-radius: 3px;
-      cursor: pointer;
-      font-size: 14px;
-      font-family: inherit;
-      transition: background-color 0.2s;
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+      margin-bottom: 15px;
     }
-    .tier-button:hover {
-      background-color: rgba(55, 53, 47, 0.12);
+    .navigation {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
     }
-    .tier-button.active {
+    .nav-button {
+      padding: 8px 12px;
       background-color: rgba(35, 131, 226, 0.14);
       color: rgb(14, 76, 139);
+      border: none;
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: 14px;
       font-weight: 500;
+    }
+    .nav-button.current {
+      background-color: rgba(35, 131, 226, 0.3);
     }
     .loading-message {
       text-align: center;
@@ -100,188 +58,46 @@
       font-style: italic;
       color: #666;
     }
-    @media (max-width: 768px) {
-      .flex-container {
-        flex-direction: column;
-      }
-      .cost-breakdown-container, .cost-table-container {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>RePrint AWS Cost Analysis</h1>
-    
-    <div id="loading" class="loading-message">
-      Loading charts...
-    </div>
-    
-    <div id="charts-container" style="display: none;">
-      <div class="chart-container">
-        <div class="chart-title">Total Monthly Cost by User Tier</div>
-        <canvas id="totalCostChart" height="250"></canvas>
-      </div>
-      
-      <div class="chart-container">
-        <div class="chart-title">Cost Per User (Economics of Scale)</div>
-        <canvas id="costPerUserChart" height="250"></canvas>
-      </div>
-      
-      <div class="chart-container">
-        <div class="chart-title">Cost Breakdown by Service</div>
-        <div class="tier-selector">
-          <button class="tier-button" data-index="0">10 Users</button>
-          <button class="tier-button active" data-index="1">1,000 Users</button>
-          <button class="tier-button" data-index="2">100,000 Users</button>
-          <button class="tier-button" data-index="3">1,000,000 Users</button>
-        </div>
-        <div class="flex-container">
-          <div class="cost-breakdown-container">
-            <canvas id="costBreakdownChart" height="300"></canvas>
-          </div>
-          <div id="costTableContainer" class="cost-table-container">
-            <!-- Table will be inserted here -->
-          </div>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <div class="chart-title">Service Cost Evolution (Logarithmic Scale)</div>
-        <canvas id="serviceEvolutionChart" height="300"></canvas>
-      </div>
-    </div>
+  <h1>RePrint AWS Cost Analysis</h1>
+  
+  <div class="navigation">
+    <a href="index.html" class="nav-button current">Total Cost</a>
+    <a href="cost-per-user.html" class="nav-button">Cost Per User</a>
+    <a href="cost-breakdown.html" class="nav-button">Cost Breakdown</a>
+    <a href="service-evolution.html" class="nav-button">Service Evolution</a>
+  </div>
+  
+  <div id="loading" class="loading-message">
+    Loading chart...
+  </div>
+  
+  <div id="chart-container" class="chart-container" style="display:none;">
+    <h2>Total Monthly Cost by User Tier</h2>
+    <canvas id="totalCostChart" height="280"></canvas>
   </div>
 
-  <!-- Load Chart.js with a callback when it's loaded -->
   <script>
-    // Function to load a script with a callback
-    function loadScript(url, callback) {
-      var script = document.createElement("script");
-      script.type = "text/javascript";
-      
-      if (script.readyState) {  // For old versions of IE
-        script.onreadystatechange = function() {
-          if (script.readyState === "loaded" || script.readyState === "complete") {
-            script.onreadystatechange = null;
-            callback();
-          }
-        };
-      } else {  // For modern browsers
-        script.onload = function() {
-          callback();
-        };
-      }
-      
-      script.src = url;
-      document.getElementsByTagName("head")[0].appendChild(script);
-    }
-
-    // Load Chart.js and then initialize our charts
-    loadScript("https://cdn.jsdelivr.net/npm/chart.js", initializeCharts);
-
-    function initializeCharts() {
-      // Hide loading message and show charts
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("charts-container").style.display = "block";
-      
+    // Load Chart.js and create the chart
+    window.addEventListener('load', function() {
       // Data from your cost analysis
       const costData = [
-        {
-          users: '10 Users',
-          totalCost: 88.15,
-          costPerUser: 8.82,
-          backend: 15.48,
-          apiGateway: 0.30,
-          dynamoDB: 2.84,
-          s3: 0.03,
-          cloudFront: 0.10,
-          eventBridge: 0.00,
-          lambda: 0.00,
-          sns: 0.06,
-          loadBalancer: 16.43,
-          cognito: 0.00,
-          other: 15.00
-        },
-        {
-          users: '1,000 Users',
-          totalCost: 137.60,
-          costPerUser: 0.14,
-          backend: 15.48,
-          apiGateway: 3.00,
-          dynamoDB: 14.19,
-          s3: 0.53,
-          cloudFront: 9.10,
-          eventBridge: 0.00,
-          lambda: 0.10,
-          sns: 6.05,
-          loadBalancer: 16.43,
-          cognito: 0.00,
-          other: 20.00
-        },
-        {
-          users: '100,000 Users',
-          totalCost: 1285.79,
-          costPerUser: 0.013,
-          backend: 61.92,
-          apiGateway: 300.00,
-          dynamoDB: 141.90,
-          s3: 50.25,
-          cloudFront: 910.00,
-          eventBridge: 1.00,
-          lambda: 10.42,
-          sns: 605.30,
-          loadBalancer: 32.86,
-          cognito: 0.00,
-          other: 50.00
-        },
-        {
-          users: '1,000,000 Users',
-          totalCost: 8773.30,
-          costPerUser: 0.0088,
-          backend: 247.68,
-          apiGateway: 3000.00,
-          dynamoDB: 1419.00,
-          s3: 502.50,
-          cloudFront: 3610.00,
-          eventBridge: 10.00,
-          lambda: 104.20,
-          sns: 6053.00,
-          loadBalancer: 65.72,
-          cognito: 0.00,
-          other: 100.00
-        }
+        { users: '10 Users', totalCost: 88.15 },
+        { users: '1,000 Users', totalCost: 137.60 },
+        { users: '100,000 Users', totalCost: 1285.79 },
+        { users: '1,000,000 Users', totalCost: 8773.30 }
       ];
 
       // Format currency
       const formatCurrency = (value) => {
         return '$' + value.toFixed(2);
       };
-
-      // Get cost breakdown for pie chart
-      const getCostBreakdown = (index) => {
-        const data = costData[index];
-        return [
-          { name: 'Backend (EB)', value: data.backend },
-          { name: 'API Gateway', value: data.apiGateway },
-          { name: 'DynamoDB', value: data.dynamoDB },
-          { name: 'S3 Storage', value: data.s3 },
-          { name: 'CloudFront', value: data.cloudFront },
-          { name: 'EventBridge', value: data.eventBridge },
-          { name: 'Lambda', value: data.lambda },
-          { name: 'SNS', value: data.sns },
-          { name: 'Load Balancer', value: data.loadBalancer },
-          { name: 'Other', value: data.other }
-        ].filter(item => item.value > 0);
-      };
-
-      // Colors for charts
-      const COLORS = [
-        '#0088FE', '#00C49F', '#FFBB28', '#FF8042', 
-        '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', 
-        '#a4de6c', '#d0ed57'
-      ];
+      
+      // Hide loading message and show chart
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("chart-container").style.display = "block";
 
       // Create total cost bar chart
       const totalCostCtx = document.getElementById('totalCostChart').getContext('2d');
@@ -320,222 +136,7 @@
           }
         }
       });
-
-      // Create cost per user line chart
-      const costPerUserCtx = document.getElementById('costPerUserChart').getContext('2d');
-      new Chart(costPerUserCtx, {
-        type: 'line',
-        data: {
-          labels: costData.map(d => d.users),
-          datasets: [{
-            label: 'Cost Per User ($)',
-            data: costData.map(d => d.costPerUser),
-            backgroundColor: 'rgba(0, 168, 107, 0.2)',
-            borderColor: 'rgb(0, 128, 81)',
-            borderWidth: 2,
-            pointRadius: 6,
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              ticks: {
-                callback: function(value) {
-                  return '$' + value.toFixed(2);
-                }
-              }
-            }
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return 'Cost Per User: ' + '$' + context.raw.toFixed(4);
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Create service evolution chart
-      const serviceEvolutionCtx = document.getElementById('serviceEvolutionChart').getContext('2d');
-      new Chart(serviceEvolutionCtx, {
-        type: 'bar',
-        data: {
-          labels: costData.map(d => d.users),
-          datasets: [
-            {
-              label: 'Backend (EB)',
-              data: costData.map(d => d.backend),
-              backgroundColor: 'rgba(35, 131, 226, 0.7)'
-            },
-            {
-              label: 'API Gateway',
-              data: costData.map(d => d.apiGateway),
-              backgroundColor: 'rgba(0, 168, 107, 0.7)'
-            },
-            {
-              label: 'DynamoDB',
-              data: costData.map(d => d.dynamoDB),
-              backgroundColor: 'rgba(255, 177, 25, 0.7)'
-            },
-            {
-              label: 'S3 Storage',
-              data: costData.map(d => d.s3),
-              backgroundColor: 'rgba(155, 89, 182, 0.7)'
-            },
-            {
-              label: 'CloudFront',
-              data: costData.map(d => d.cloudFront),
-              backgroundColor: 'rgba(231, 76, 60, 0.7)'
-            },
-            {
-              label: 'SNS',
-              data: costData.map(d => d.sns),
-              backgroundColor: 'rgba(26, 188, 156, 0.7)'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              stacked: false
-            },
-            y: {
-              type: 'logarithmic',
-              min: 0.01,
-              ticks: {
-                callback: function(value) {
-                  return '$' + value;
-                }
-              }
-            }
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.dataset.label + ': ' + formatCurrency(context.raw);
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Create cost breakdown pie chart and table
-      let costBreakdownChart;
-      let activeTierIndex = 1; // Default to 1,000 users
-
-      const updateCostBreakdown = (index) => {
-        const breakdown = getCostBreakdown(index);
-        
-        // Update pie chart
-        if (costBreakdownChart) {
-          costBreakdownChart.destroy();
-        }
-        
-        const costBreakdownCtx = document.getElementById('costBreakdownChart').getContext('2d');
-        costBreakdownChart = new Chart(costBreakdownCtx, {
-          type: 'pie',
-          data: {
-            labels: breakdown.map(item => item.name),
-            datasets: [{
-              data: breakdown.map(item => item.value),
-              backgroundColor: COLORS.slice(0, breakdown.length),
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    const value = context.raw;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percentage = ((value / total) * 100).toFixed(1);
-                    return context.label + ': ' + formatCurrency(value) + ' (' + percentage + '%)';
-                  }
-                }
-              }
-            }
-          }
-        });
-        
-        // Update table
-        const tableContainer = document.getElementById('costTableContainer');
-        let tableHTML = '<table class="cost-table">';
-        tableHTML += '<thead><tr><th>Service</th><th>Monthly Cost</th></tr></thead>';
-        tableHTML += '<tbody>';
-        
-        breakdown.forEach((item, i) => {
-          tableHTML += '<tr>';
-          tableHTML += '<td>' + item.name + '</td>';
-          tableHTML += '<td>' + formatCurrency(item.value) + '</td>';
-          tableHTML += '</tr>';
-        });
-        
-        tableHTML += '<tr><td>Total</td><td>' + formatCurrency(costData[index].totalCost) + '</td></tr>';
-        tableHTML += '</tbody></table>';
-        
-        tableContainer.innerHTML = tableHTML;
-      };
-
-      // Initialize with 1,000 users
-      updateCostBreakdown(activeTierIndex);
-
-      // Handle tier selection
-      document.querySelectorAll('.tier-button').forEach(button => {
-        button.addEventListener('click', () => {
-          document.querySelectorAll('.tier-button').forEach(b => b.classList.remove('active'));
-          button.classList.add('active');
-          activeTierIndex = parseInt(button.dataset.index);
-          updateCostBreakdown(activeTierIndex);
-        });
-      });
-
-      // Notify parent frame for height adjustment
-      setTimeout(function() {
-        const height = document.body.scrollHeight;
-        window.parent.postMessage({ height: height }, '*');
-      }, 500);
-    }
+    });
   </script>
-  <script>
-  // Set a specific height for the entire document
-  document.body.style.minHeight = "1400px";
-  
-  // Communicate the height to the parent frame (Notion)
-  function updateParentHeight() {
-    const height = Math.max(
-      document.body.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
-    );
-    
-    // Send message to parent frame
-    if (window.parent) {
-      window.parent.postMessage({ height: height + 50 }, '*');
-    }
-  }
-  
-  // Run after everything is loaded
-  window.addEventListener('load', function() {
-    // Initial update
-    updateParentHeight();
-    
-    // Update after a delay to ensure charts are rendered
-    setTimeout(updateParentHeight, 1000);
-  });
-  
-  // Also run after window resize
-  window.addEventListener('resize', updateParentHeight);
-</script>
 </body>
 </html>
