@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RePrint Cost Analysis - Cost Per User</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background-color: transparent;
+    }
+    h1 {
+      text-align: center;
+      color: #37352f;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 24px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: #37352f;
+    }
+    .chart-container {
+      padding: 15px;
+      background-color: white;
+      border-radius: 3px;
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+      margin-bottom: 15px;
+    }
+    .navigation {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .nav-button {
+      padding: 8px 12px;
+      background-color: rgba(35, 131, 226, 0.14);
+      color: rgb(14, 76, 139);
+      border: none;
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-button.current {
+      background-color: rgba(35, 131, 226, 0.3);
+    }
+    .loading-message {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>RePrint AWS Cost Analysis</h1>
+  
+  <div class="navigation">
+    <a href="index.html" class="nav-button">Total Cost</a>
+    <a href="cost-per-user.html" class="nav-button current">Cost Per User</a>
+    <a href="cost-breakdown.html" class="nav-button">Cost Breakdown</a>
+    <a href="service-evolution.html" class="nav-button">Service Evolution</a>
+  </div>
+  
+  <div id="loading" class="loading-message">
+    Loading chart...
+  </div>
+  
+  <div id="chart-container" class="chart-container" style="display:none;">
+    <h2>Cost Per User (Economics of Scale)</h2>
+    <canvas id="costPerUserChart" height="280"></canvas>
+  </div>
 
+  <script>
+    // Load Chart.js and create the chart
+    window.addEventListener('load', function() {
+      // Data from your cost analysis
+      const costData = [
+        { users: '10 Users', costPerUser: 8.82 },
+        { users: '1,000 Users', costPerUser: 0.14 },
+        { users: '100,000 Users', costPerUser: 0.013 },
+        { users: '1,000,000 Users', costPerUser: 0.0088 }
+      ];
+
+      // Format currency
+      const formatCurrency = (value) => {
+        return '$' + value.toFixed(4);
+      };
+      
+      // Hide loading message and show chart
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("chart-container").style.display = "block";
+
+      // Create cost per user line chart
+      const costPerUserCtx = document.getElementById('costPerUserChart').getContext('2d');
+      new Chart(costPerUserCtx, {
+        type: 'line',
+        data: {
+          labels: costData.map(d => d.users),
+          datasets: [{
+            label: 'Cost Per User ($)',
+            data: costData.map(d => d.costPerUser),
+            backgroundColor: 'rgba(0, 168, 107, 0.2)',
+            borderColor: 'rgb(0, 128, 81)',
+            borderWidth: 2,
+            pointRadius: 6,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              ticks: {
+                callback: function(value) {
+                  return '$' + value.toFixed(2);
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return 'Cost Per User: ' + formatCurrency(context.raw);
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
