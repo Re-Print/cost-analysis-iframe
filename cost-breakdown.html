@@ -1,1 +1,329 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RePrint Cost Analysis - Cost Breakdown</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background-color: transparent;
+    }
+    h1 {
+      text-align: center;
+      color: #37352f;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 24px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      color: #37352f;
+    }
+    .chart-container {
+      padding: 15px;
+      background-color: white;
+      border-radius: 3px;
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+      margin-bottom: 15px;
+    }
+    .navigation {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .nav-button {
+      padding: 8px 12px;
+      background-color: rgba(35, 131, 226, 0.14);
+      color: rgb(14, 76, 139);
+      border: none;
+      border-radius: 3px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-button.current {
+      background-color: rgba(35, 131, 226, 0.3);
+    }
+    .loading-message {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+      color: #666;
+    }
+    .flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .chart-area {
+      flex: 1 1 45%;
+      min-width: 250px;
+    }
+    .table-area {
+      flex: 1 1 45%;
+      min-width: 250px;
+    }
+    .tier-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    .tier-button {
+      padding: 6px 12px;
+      background-color: rgba(55, 53, 47, 0.08);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: background-color 0.2s;
+    }
+    .tier-button:hover {
+      background-color: rgba(55, 53, 47, 0.12);
+    }
+    .tier-button.active {
+      background-color: rgba(35, 131, 226, 0.14);
+      color: rgb(14, 76, 139);
+      font-weight: 500;
+    }
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .cost-table th, .cost-table td {
+      border: 1px solid rgba(55, 53, 47, 0.16);
+      padding: 8px;
+      text-align: left;
+    }
+    .cost-table th {
+      background-color: rgba(55, 53, 47, 0.08);
+    }
+    .cost-table tr:nth-child(even) {
+      background-color: rgba(55, 53, 47, 0.03);
+    }
+    .cost-table tr:last-child {
+      background-color: rgba(35, 131, 226, 0.07);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>RePrint AWS Cost Analysis</h1>
+  
+  <div class="navigation">
+    <a href="index.html" class="nav-button">Total Cost</a>
+    <a href="cost-per-user.html" class="nav-button">Cost Per User</a>
+    <a href="cost-breakdown.html" class="nav-button current">Cost Breakdown</a>
+    <a href="service-evolution.html" class="nav-button">Service Evolution</a>
+  </div>
+  
+  <div id="loading" class="loading-message">
+    Loading chart...
+  </div>
+  
+  <div id="chart-container" class="chart-container" style="display:none;">
+    <h2>Cost Breakdown by Service</h2>
+    <div class="tier-selector">
+      <button class="tier-button" data-index="0">10 Users</button>
+      <button class="tier-button active" data-index="1">1,000 Users</button>
+      <button class="tier-button" data-index="2">100,000 Users</button>
+      <button class="tier-button" data-index="3">1,000,000 Users</button>
+    </div>
+    
+    <div class="flex-container">
+      <div class="chart-area">
+        <canvas id="costBreakdownChart" height="250"></canvas>
+      </div>
+      <div id="costTableContainer" class="table-area">
+        <!-- Table will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load Chart.js and create the chart
+    window.addEventListener('load', function() {
+      // Data from your cost analysis
+      const costData = [
+        {
+          users: '10 Users',
+          totalCost: 88.15,
+          backend: 15.48,
+          apiGateway: 0.30,
+          dynamoDB: 2.84,
+          s3: 0.03,
+          cloudFront: 0.10,
+          eventBridge: 0.00,
+          lambda: 0.00,
+          sns: 0.06,
+          loadBalancer: 16.43,
+          cognito: 0.00,
+          other: 15.00
+        },
+        {
+          users: '1,000 Users',
+          totalCost: 137.60,
+          backend: 15.48,
+          apiGateway: 3.00,
+          dynamoDB: 14.19,
+          s3: 0.53,
+          cloudFront: 9.10,
+          eventBridge: 0.00,
+          lambda: 0.10,
+          sns: 6.05,
+          loadBalancer: 16.43,
+          cognito: 0.00,
+          other: 20.00
+        },
+        {
+          users: '100,000 Users',
+          totalCost: 1285.79,
+          backend: 61.92,
+          apiGateway: 300.00,
+          dynamoDB: 141.90,
+          s3: 50.25,
+          cloudFront: 910.00,
+          eventBridge: 1.00,
+          lambda: 10.42,
+          sns: 605.30,
+          loadBalancer: 32.86,
+          cognito: 0.00,
+          other: 50.00
+        },
+        {
+          users: '1,000,000 Users',
+          totalCost: 8773.30,
+          backend: 247.68,
+          apiGateway: 3000.00,
+          dynamoDB: 1419.00,
+          s3: 502.50,
+          cloudFront: 3610.00,
+          eventBridge: 10.00,
+          lambda: 104.20,
+          sns: 6053.00,
+          loadBalancer: 65.72,
+          cognito: 0.00,
+          other: 100.00
+        }
+      ];
+
+      // Colors for charts
+      const COLORS = [
+        '#0088FE', '#00C49F', '#FFBB28', '#FF8042', 
+        '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', 
+        '#a4de6c', '#d0ed57'
+      ];
+
+      // Format currency
+      const formatCurrency = (value) => {
+        return '$' + value.toFixed(2);
+      };
+
+      // Get cost breakdown for pie chart
+      const getCostBreakdown = (index) => {
+        const data = costData[index];
+        return [
+          { name: 'Backend (EB)', value: data.backend },
+          { name: 'API Gateway', value: data.apiGateway },
+          { name: 'DynamoDB', value: data.dynamoDB },
+          { name: 'S3 Storage', value: data.s3 },
+          { name: 'CloudFront', value: data.cloudFront },
+          { name: 'EventBridge', value: data.eventBridge },
+          { name: 'Lambda', value: data.lambda },
+          { name: 'SNS', value: data.sns },
+          { name: 'Load Balancer', value: data.loadBalancer },
+          { name: 'Other', value: data.other }
+        ].filter(item => item.value > 0);
+      };
+      
+      // Hide loading message and show chart
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("chart-container").style.display = "block";
+
+      // Create cost breakdown pie chart and table
+      let costBreakdownChart;
+      let activeTierIndex = 1; // Default to 1,000 users
+
+      const updateCostBreakdown = (index) => {
+        const breakdown = getCostBreakdown(index);
+        
+        // Update pie chart
+        if (costBreakdownChart) {
+          costBreakdownChart.destroy();
+        }
+        
+        const costBreakdownCtx = document.getElementById('costBreakdownChart').getContext('2d');
+        costBreakdownChart = new Chart(costBreakdownCtx, {
+          type: 'pie',
+          data: {
+            labels: breakdown.map(item => item.name),
+            datasets: [{
+              data: breakdown.map(item => item.value),
+              backgroundColor: COLORS.slice(0, breakdown.length),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const value = context.raw;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return context.label + ': ' + formatCurrency(value) + ' (' + percentage + '%)';
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Update table
+        const tableContainer = document.getElementById('costTableContainer');
+        let tableHTML = '<table class="cost-table">';
+        tableHTML += '<thead><tr><th>Service</th><th>Monthly Cost</th></tr></thead>';
+        tableHTML += '<tbody>';
+        
+        breakdown.forEach((item, i) => {
+          tableHTML += '<tr>';
+          tableHTML += '<td>' + item.name + '</td>';
+          tableHTML += '<td>' + formatCurrency(item.value) + '</td>';
+          tableHTML += '</tr>';
+        });
+        
+        tableHTML += '<tr><td>Total</td><td>' + formatCurrency(costData[index].totalCost) + '</td></tr>';
+        tableHTML += '</tbody></table>';
+        
+        tableContainer.innerHTML = tableHTML;
+      };
+
+      // Initialize with 1,000 users
+      updateCostBreakdown(activeTierIndex);
+
+      // Handle tier selection
+      document.querySelectorAll('.tier-button').forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.tier-button').forEach(b => b.classList.remove('active'));
+          button.classList.add('active');
+          activeTierIndex = parseInt(button.dataset.index);
+          updateCostBreakdown(activeTierIndex);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
