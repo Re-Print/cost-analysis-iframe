@@ -1,142 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RePrint Cost Analysis - Total Cost</title>
+  <title>RePrint AWS Cost Analysis</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 10px;
-      background-color: transparent;
+      padding: 15px;
+      background-color: #f7f7f7;
+      color: #37352f;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
     }
     h1 {
       text-align: center;
       color: #37352f;
       margin-bottom: 20px;
       font-weight: 600;
-      font-size: 24px;
+      font-size: 28px;
     }
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 15px;
-      color: #37352f;
+    p {
+      line-height: 1.5;
+      margin-bottom: 20px;
     }
-    .chart-container {
-      padding: 15px;
+    .chart-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 25px 0;
+    }
+    .chart-card {
       background-color: white;
-      border-radius: 3px;
+      border-radius: 5px;
       box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
-      margin-bottom: 15px;
-    }
-    .navigation {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-    }
-    .nav-button {
-      padding: 8px 12px;
-      background-color: rgba(35, 131, 226, 0.14);
-      color: rgb(14, 76, 139);
-      border: none;
-      border-radius: 3px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .nav-button.current {
-      background-color: rgba(35, 131, 226, 0.3);
-    }
-    .loading-message {
+      padding: 15px;
       text-align: center;
-      padding: 20px;
-      font-style: italic;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .chart-card:hover {
+      transform: translateY(-3px);
+      box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.2) 0px 5px 10px;
+    }
+    .chart-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: #3498db;
+    }
+    .chart-title {
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .chart-description {
+      font-size: 13px;
       color: #666;
+    }
+    a {
+      color: #2383e2;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 13px;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <h1>RePrint AWS Cost Analysis</h1>
-  
-  <div class="navigation">
-    <a href="index.html" class="nav-button current">Total Cost</a>
-    <a href="cost-per-user.html" class="nav-button">Cost Per User</a>
-    <a href="cost-breakdown.html" class="nav-button">Cost Breakdown</a>
-    <a href="service-evolution.html" class="nav-button">Service Evolution</a>
-  </div>
-  
-  <div id="loading" class="loading-message">
-    Loading chart...
-  </div>
-  
-  <div id="chart-container" class="chart-container" style="display:none;">
-    <h2>Total Monthly Cost by User Tier</h2>
-    <canvas id="totalCostChart" height="280"></canvas>
-  </div>
-
-  <script>
-    // Load Chart.js and create the chart
-    window.addEventListener('load', function() {
-      // Data from your cost analysis
-      const costData = [
-        { users: '10 Users', totalCost: 88.15 },
-        { users: '1,000 Users', totalCost: 137.60 },
-        { users: '100,000 Users', totalCost: 1285.79 },
-        { users: '1,000,000 Users', totalCost: 8773.30 }
-      ];
-
-      // Format currency
-      const formatCurrency = (value) => {
-        return '$' + value.toFixed(2);
-      };
+  <div class="container">
+    <h1>RePrint AWS Cost Analysis</h1>
+    
+    <p>
+      This interactive dashboard provides cost analysis visualizations for the RePrint application 
+      infrastructure on AWS. Each chart is available as a separate page for easy embedding in documentation.
+    </p>
+    
+    <div class="chart-links">
+      <a href="total-cost.html" class="chart-card">
+        <div class="chart-icon">📊</div>
+        <div class="chart-title">Total Monthly Cost</div>
+        <div class="chart-description">Monthly AWS cost across different user tiers</div>
+      </a>
       
-      // Hide loading message and show chart
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("chart-container").style.display = "block";
-
-      // Create total cost bar chart
-      const totalCostCtx = document.getElementById('totalCostChart').getContext('2d');
-      new Chart(totalCostCtx, {
-        type: 'bar',
-        data: {
-          labels: costData.map(d => d.users),
-          datasets: [{
-            label: 'Total Monthly Cost ($)',
-            data: costData.map(d => d.totalCost),
-            backgroundColor: 'rgba(35, 131, 226, 0.8)',
-            borderColor: 'rgb(14, 76, 139)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return '$' + value;
-                }
-              }
-            }
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return 'Monthly Cost: ' + formatCurrency(context.raw);
-                }
-              }
-            }
-          }
-        }
-      });
-    });
-  </script>
+      <a href="cost-per-user.html" class="chart-card">
+        <div class="chart-icon">💰</div>
+        <div class="chart-title">Cost Per User</div>
+        <div class="chart-description">Economics of scale as user base grows</div>
+      </a>
+      
+      <a href="cost-breakdown.html" class="chart-card">
+        <div class="chart-icon">🍕</div>
+        <div class="chart-title">Cost Breakdown</div>
+        <div class="chart-description">Service-by-service breakdown by user tier</div>
+      </a>
+      
+      <a href="service-evolution.html" class="chart-card">
+        <div class="chart-icon">📈</div>
+        <div class="chart-title">Service Evolution</div>
+        <div class="chart-description">How service costs scale with user growth</div>
+      </a>
+    </div>
+    
+    <p>
+      These visualizations are based on AWS pricing as of May 2025. For the most current estimates, 
+      please use the <a href="https://calculator.aws" target="_blank">AWS Pricing Calculator</a>.
+    </p>
+    
+    <div class="footer">
+      RePrint AWS Cost Analysis • Created for Notion embedding
+    </div>
+  </div>
 </body>
 </html>
